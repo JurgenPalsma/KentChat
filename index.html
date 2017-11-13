@@ -62,6 +62,10 @@
           An anonymous person wrote:
         {% endif %}
         <blockquote>{{ greeting.content }}</blockquote>
+          <form action="/delete?greeting_id={{ greeting.key.id() }}" method=post>
+          <input type=hidden value="{{ greeting.key.id() }}"name=greeting_id"></input>
+          <input type=submit></input>
+          </form>
       </div>
       {% endfor %}
       <!-- [END greetings] -->

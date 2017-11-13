@@ -45,7 +45,6 @@ def guestbook_key(guestbook_name=DEFAULT_GUESTBOOK_NAME):
     """
     return ndb.Key('Guestbook', guestbook_name)
 
-
 # [START greeting]
 class Author(ndb.Model):
     """Sub model for representing an author."""
@@ -115,12 +114,29 @@ class Guestbook(webapp2.RequestHandler):
 
         query_params = {'guestbook_name': guestbook_name}
         self.redirect('/?' + urllib.urlencode(query_params))
+
 # [END guestbook]
+
+class DeleteGreeting(webapp2.RequestHandler):
+
+    def post(self):
+        guestbook_name = self.request.get('guestbook_name',
+                                          DEFAULT_GUESTBOOK_NAME)
+        greeting_id = self.request.get('greeting_id')
+        print(greeting_id)
+        query = Greeting.get_by_id(id=int(greeting_id), parent=guestbook_key(guestbook_name))
+        query.key.delete()
+        #greeting_key.delete()
+        query_params = {'guestbook_name': guestbook_name}
+        self.redirect('/?' + urllib.urlencode(query_params))
+
+
 
 
 # [START app] - Declare Routes with url and handler classes
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/sign', Guestbook),
+    ('/delete', DeleteGreeting)
 ], debug=True)
 # [END app]
