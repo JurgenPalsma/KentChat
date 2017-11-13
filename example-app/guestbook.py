@@ -40,7 +40,6 @@ DEFAULT_GUESTBOOK_NAME = 'default_guestbook'
 
 def guestbook_key(guestbook_name=DEFAULT_GUESTBOOK_NAME):
     """Constructs a Datastore key for a Guestbook entity.
-
     We use guestbook_name as the key.
     """
     return ndb.Key('Guestbook', guestbook_name)
@@ -129,8 +128,6 @@ class DeleteGreeting(webapp2.RequestHandler):
         #greeting_key.delete()
         query_params = {'guestbook_name': guestbook_name}
         self.redirect('/?' + urllib.urlencode(query_params))
-
-
 
 
 # [START app] - Declare Routes with url and handler classes
