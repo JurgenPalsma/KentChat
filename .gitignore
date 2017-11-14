@@ -1,0 +1,11 @@
+# Created by https://www.gitignore.io/api/node
+
+### IDE ###
+.idea
+
+#
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
