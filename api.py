@@ -26,26 +26,19 @@ import webapp2
 
 from models import User, Message
 
-JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-    extensions=['jinja2.ext.autoescape'],
-    autoescape=True)
-# [END imports]
-
-DEFAULT_GUESTBOOK_NAME = 'default_guestbook'
-
+DEFAULT_CHAT_NAME = 'kent_chat_default'
 
 # We set a parent key on the 'Greetings' to ensure that they are all
 # in the same entity group. Queries across the single entity group
 # will be consistent. However, the write rate should be limited to
 # ~1/second.
 
-def guestbook_key(guestbook_name=DEFAULT_GUESTBOOK_NAME):
-    """Constructs a Datastore key for a Guestbook entity.
+def conversation_key(users: list) -> ndb.Key:
+    """Constructs a Datastore key for a chat entity."""
 
-    We use guestbook_name as the key.
-    """
-    return ndb.Key('Guestbook', guestbook_name)
+    key = reduce(lambda a, b: a + '_' + b, sorted(users, lambda user: user.uuid))
+
+    return ndb.Key('conversation', key)
 
 # [START greeting]
 class Author(ndb.Model):
