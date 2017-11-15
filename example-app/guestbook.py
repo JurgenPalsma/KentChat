@@ -18,27 +18,30 @@
 import os
 import urllib
 
+import jinja2
+import webapp2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
-import jinja2
-import webapp2
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True)
+# [END imports]
 
-from models import User, Message
+DEFAULT_GUESTBOOK_NAME = 'default_guestbook'
 
-DEFAULT_CHAT_NAME = 'kent_chat_default'
 
 # We set a parent key on the 'Greetings' to ensure that they are all
 # in the same entity group. Queries across the single entity group
 # will be consistent. However, the write rate should be limited to
 # ~1/second.
 
-def conversation_key(users: list) -> ndb.Key:
-    """Constructs a Datastore key for a chat entity."""
-
-    key = reduce(lambda a, b: a + '_' + b, sorted(users, lambda user: user.uuid))
-
-    return ndb.Key('conversation', key)
+def guestbook_key(guestbook_name=DEFAULT_GUESTBOOK_NAME):
+    """Constructs a Datastore key for a Guestbook entity.
+    We use guestbook_name as the key.
+    """
+    return ndb.Key('Guestbook', guestbook_name)
 
 # [START greeting]
 class Author(ndb.Model):
@@ -124,8 +127,6 @@ class DeleteGreeting(webapp2.RequestHandler):
         #greeting_key.delete()
         query_params = {'guestbook_name': guestbook_name}
         self.redirect('/?' + urllib.urlencode(query_params))
-
-
 
 
 # [START app] - Declare Routes with url and handler classes

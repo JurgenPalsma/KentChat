@@ -103,3 +103,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+
+### IDE ###
+.idea
+
+#
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
