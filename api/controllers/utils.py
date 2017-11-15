@@ -1,8 +1,3 @@
-def entity_to_dict(entity):
-    res = entity.to_dict()
-    res['key'] = entity.key.urlsafe()
-    return res
-
 def returns_json(method):
     def wrapper(self, *args, **kwargs):
         self.response.headers.add('Content-Type', 'application/json; charset=utf-8')
