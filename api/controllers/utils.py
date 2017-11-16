@@ -33,3 +33,17 @@ def treat_empty_string_as_none(*parameters):
             return method(self, *args, **kwargs)
         return wrapper
     return decorator
+
+class IncorrectRequestContent(Exception):
+    def __init__(self, *args, **kwargs):
+        super(IncorrectRequestContent, self).__init__(*args, **kwargs)
+
+def request_require(*parameters):
+    def decorator(method):
+        def wrapper(self, *args, **kwargs):
+            for p in parameters:
+                if self.request.get(p, default_value=None) is None:
+                    raise IncorrectRequestContent('Parameter not found: {}'.format(p))
+            return method(self, *args, **kwargs)
+        return wrapper
+    return decorator
