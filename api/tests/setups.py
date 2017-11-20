@@ -18,8 +18,8 @@ from kentchat import app
 
 def add_users():
     User.allocate_ids(max=100)
-    user_1 = User(email='kentuser1@gmail.com', name='kent user 1', id=1)
-    user_2 = User(email='kentuser2@gmail.com', name='kent user 2', id=2)
+    user_1 = User(email='kentuser1@gmail.com', name='kent user 1', password='password_1', token='token_1' ,id=1)
+    user_2 = User(email='kentuser2@gmail.com', name='kent user 2', password='password_2', token='token_2' ,id=2)
     user_1.put()
     user_2.put()
 

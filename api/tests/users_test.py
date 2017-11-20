@@ -74,7 +74,7 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(key, key_obtained)
 
     def test_post_one(self):
-        user = {'name': 'user 3', 'email': 'kentuser3@gmail.com'}
+        user = {'name': 'user 3', 'email': 'kentuser3@gmail.com', 'password': 'password_3'}
 
         response = self.app.post('/users', user)
 
