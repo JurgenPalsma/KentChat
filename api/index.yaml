@@ -1,8 +1,0 @@
-indexes:
-- kind: User
-  ancestor: no
-  properties:
-  - name: date
-  - identity: string
-  - email: string
-    direction: desc
