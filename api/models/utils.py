@@ -1,6 +1,7 @@
 from webapp2_extras import json
 from google.appengine.ext import ndb
 
+# A model witch can be easily converted to a python dictionary
 class SerializableModel(ndb.Model):
     def _to_dict(self, *args, **kwargs):
         print(self)

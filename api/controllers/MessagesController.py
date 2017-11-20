@@ -6,7 +6,7 @@ import webapp2
 from webapp2_extras import json
 
 from models import Message
-from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_require
+from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
 
 from UsersController import user_not_found, get_one_user
 from ConversationsController import get_one_conversation, conversation_not_found
@@ -43,7 +43,7 @@ class MessagesController(webapp2.RequestHandler):
 
     @treat_empty_string_as_none('conv_id')
     @fallback_param_to_req('conv_id')
-    @request_require('content', 'user')
+    @request_post_require('content', 'user')
     @returns_json
     def post(self, conv_id=None):
         conversation = get_one_conversation(self, conv_id)

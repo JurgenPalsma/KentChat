@@ -6,7 +6,7 @@ import webapp2
 from webapp2_extras import json
 
 from models import User
-from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_require
+from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
 
 def user_not_found(self, user_id=None):
     print('User not found {}'.format(': {}'.format(user_id) if user_id is not None else ''))
@@ -38,7 +38,7 @@ class UsersController(webapp2.RequestHandler):
 
         self.response.write(json.encode(res))
 
-    @request_require('name', 'email')
+    @request_post_require('name', 'email')
     @returns_json
     def post(self):
         user = User()
