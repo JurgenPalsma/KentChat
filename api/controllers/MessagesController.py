@@ -50,7 +50,7 @@ class MessagesController(webapp2.RequestHandler):
 
         message = Message(parent=conversation.key)
         message.content = self.request.get('content')
-        message.user = get_one_user(self.request.get('user')).key
+        message.user = get_one_user(self, self.request.get('user')).key
 
         print('POST on /messages: {}'.format(message))
 
