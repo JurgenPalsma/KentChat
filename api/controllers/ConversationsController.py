@@ -49,6 +49,9 @@ class ConversationsController(webapp2.RequestHandler):
 
         conversation = Conversation()
         conversation.users = [get_one_user(self, user_id).key for user_id in users_ids]
+        if self.request.get('name', default_value=None) is not None:
+            conversation.name = self.request.get('name', default_value=None)
+
         print('POST on /conversations: {}'.format(conversation))
 
         conversation.put()
@@ -65,10 +68,22 @@ class ConversationsController(webapp2.RequestHandler):
             conversation = get_one_conversation(self, conv_id)
 
         # edit conversation
-        conversation_modifs = get_params_from_request(self, 'users')
+        conversation_modifs = get_params_from_request(self, 'users', 'name')
 
         if conversation_modifs['users'] is not None:
-            conversation.users = [get_one_user(self, user_id).key for user_id in conversation_modifs['users']]
+            try:
+                users_ids = json.decode(unicode(conversation_modifs['users']))
+                if users_ids is None or len(users_ids) is 0:
+                    user_not_found(self, user_id=users_ids)
+
+                conversation.users = [get_one_user(self, user_id).key for user_id in users_ids]
+            except (ValueError, UnicodeError) as e:
+                user_not_found(self, user_id=e)
+
+
+        if conversation_modifs['name'] is not None:
+            conversation.name = conversation_modifs['name']
+
 
         conversation.put()
         self.response.write(json.encode(conversation.to_dict()))

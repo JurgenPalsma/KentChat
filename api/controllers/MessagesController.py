@@ -43,13 +43,15 @@ class MessagesController(webapp2.RequestHandler):
 
     @treat_empty_string_as_none('conv_id')
     @fallback_param_to_req('conv_id')
-    @request_require('content')
+    @request_require('content', 'user')
     @returns_json
     def post(self, conv_id=None):
         conversation = get_one_conversation(self, conv_id)
 
         message = Message(parent=conversation.key)
         message.content = self.request.get('content')
+        message.user = get_one_user(self.request.get('user')).key
+
         print('POST on /messages: {}'.format(message))
 
         message.put()

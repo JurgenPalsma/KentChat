@@ -13,6 +13,7 @@ def user_not_found(self, user_id=None):
     self.abort(404)
 
 def get_one_user(self, user_id):
+    print('getting user {}'.format(user_id))
     try:
         user = ndb.Key(urlsafe=user_id).get()
         if user is None:
