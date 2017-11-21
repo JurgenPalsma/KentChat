@@ -28,9 +28,8 @@ class AuthController(webapp2.RequestHandler):
     def post(self):
         email = self.request.get('email')
         password = self.request.get('password')
-        hashed_password = generate_password_hash(password)
 
-        users = list(User.query(User.email == email, User.password == hashed_password))
+        users = [user for user in User.query(User.email == email) if security.check_password_hash(password, user.password)]
         if len(users) is 0:
             auth_error(self)
 

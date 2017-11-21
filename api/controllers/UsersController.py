@@ -9,7 +9,7 @@ from webapp2_extras import json
 from models import User
 from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
 
-from AuthController import generate_token, generate_password
+from AuthController import generate_token, generate_password_hash
 
 def user_not_found(self, user_id=None):
     print('User not found {}'.format(': {}'.format(user_id) if user_id is not None else ''))
