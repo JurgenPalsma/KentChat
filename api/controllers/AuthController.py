@@ -4,12 +4,15 @@ if '..' not in sys.path:
 
 from google.appengine.ext import ndb
 import webapp2
-from webapp2_extras import json
+from webapp2_extras import json, security
 
 from random import choice
 
 from models import User
 from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
+
+def generate_password_hash(raw_password):
+    return security.generate_password_hash(raw_password, length=12)
 
 def generate_token(size=16):
     alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -25,9 +28,10 @@ class AuthController(webapp2.RequestHandler):
     def post(self):
         email = self.request.get('email')
         password = self.request.get('password')
+        hashed_password = generate_password_hash(password)
 
-        users = list(User.query(User.email == email, User.password == password))
+        users = list(User.query(User.email == email, User.password == hashed_password))
         if len(users) is 0:
             auth_error(self)
 
-        self.response.write(json.encode({'token': users[0].token}))
+        self.response.write(json.encode({'token': users[0].token, 'key': users[0].key.urlsafe()}))

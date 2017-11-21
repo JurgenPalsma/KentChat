@@ -9,7 +9,7 @@ from webapp2_extras import json
 from models import User
 from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
 
-from AuthController import generate_token
+from AuthController import generate_token, generate_password
 
 def user_not_found(self, user_id=None):
     print('User not found {}'.format(': {}'.format(user_id) if user_id is not None else ''))
@@ -47,7 +47,7 @@ class UsersController(webapp2.RequestHandler):
         user = User()
         user.email = self.request.get('email')
         user.name = self.request.get('name')
-        user.password = self.request.get('password')
+        user.password = generate_password_hash(self.request.get('password'))
         user.token = generate_token()
 
         print('POST on /users: {}'.format(user))
