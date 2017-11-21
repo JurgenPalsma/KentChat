@@ -32,3 +32,4 @@ class TestConversations(unittest.TestCase):
         result = json.loads(response.normal_body)
 
         self.assertEqual(result['token'], 'token_1')
+        self.assertEqual(result['key'], user_key_1)
