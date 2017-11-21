@@ -48,27 +48,39 @@ class MainPage(BaseHandler):
 
     def get(self):
         print("GET /")
-        template_values = {
-            'user': "john",
-            'foo': self.session.get('user-key')
-        }
-        template = JINJA_ENVIRONMENT.get_template('index.html')
-        #self.response.write(template.render(template_values))
-        self.response.write("hi")
+
+        if self.session.get('user-token'):
+            template_values = {
+            'name': self.session.get('user-name'),
+            'email': self.session.get('user-email'),
+            'token': self.session.get('user-token'),
+            'key': self.session.get('user-key')
+            }
+            self.response.write("hi, you're logged in with " + template_values.__str__())
+        else:
+            self.response.write("You are not logged in")
+
 
 
 class LoginController(BaseHandler):
 
     def get(self):
         print("GET /login")
-
         url = API_URL + "/auth"
-        data = dict(name='joe', email='joe@kent.ac.uk', password="pass")
+
+        if self.request.get('email') and self.request.get('password') \
+                and self.request.get('remember') and self.request.get('login'):
+            data = dict(email=self.request.get('email'), password=self.request.get('password'))
+            self.session['user-email'] = self.request.get('email')
+
+        else:
+            data = dict(email="joe@kent.ac.uk", password="password")
+            self.session['user-name'] = 'joe'
+            self.session['user-email'] = 'joe@kent.ac.uk'
 
         response = requests.post(url, data=data, allow_redirects=True)
         data = json.loads(response.content)
         self.session['user-token'] = data['token']
-
         self.response.write(self.session.get('user-token'))
 
 
@@ -76,14 +88,20 @@ class RegistrationController(BaseHandler):
 
     def get(self):
         print("GET /register")
-
         url = API_URL + "/users"
-        data = dict(name='joe', email='joe@kent.ac.uk', password="pass")
+
+        if self.request.get('email') and self.request.get('password') \
+                and self.request.get('remember') and self.request.get('login') \
+                and self.request.get('username'):
+            data = dict(name=self.request.get('username'),
+                        email=self.request.get('email'),
+                        password=self.request.get('password'))
+        else:
+            data = dict(name='joe', email='joe@kent.ac.uk', password="pass")
 
         response = requests.post(url, data=data, allow_redirects=True)
         data = json.loads(response.content)
         self.session['user-key'] = data['key']
-
         self.response.write(self.session.get('user-key'))
 
 
