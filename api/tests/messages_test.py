@@ -5,7 +5,7 @@ import json
 
 from setups import setUp, tearDown
 
-from testutils import assert_json, assert_success, assert_error
+from testutils import assert_json, assert_success, assert_error, auth_headers
 
 from google.appengine.ext import ndb
 
@@ -24,7 +24,7 @@ class TestMessages(unittest.TestCase):
         user_key_1 = ndb.Key(User, 1)
         user_key_2 = ndb.Key(User, 2)
 
-        response = self.app.get('/conversations/{}/messages'.format(conv_key_1.urlsafe()))
+        response = self.app.get('/conversations/{}/messages'.format(conv_key_1.urlsafe()), headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -49,7 +49,7 @@ class TestMessages(unittest.TestCase):
         key = ndb.Key(Conversation, 11, Message, 101)
         user_key_1 = ndb.Key(User, 1)
 
-        response = self.app.get('/messages/{}'.format(key.urlsafe()))
+        response = self.app.get('/messages/{}'.format(key.urlsafe()), headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -66,7 +66,7 @@ class TestMessages(unittest.TestCase):
         key = ndb.Key(Conversation, 11, Message, 101)
         user_key_1 = ndb.Key(User, 1)
 
-        response = self.app.put('/messages/{}'.format(key.urlsafe()), {'content': 'oops, I edited the message'})
+        response = self.app.put('/messages/{}'.format(key.urlsafe()), {'content': 'oops, I edited the message'}, headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -82,12 +82,12 @@ class TestMessages(unittest.TestCase):
         key = ndb.Key(Conversation, 11, Message, 102)
         conv_key_1 = ndb.Key(Conversation, 11)
 
-        response_delete = self.app.delete('/messages/{}'.format(key.urlsafe()))
+        response_delete = self.app.delete('/messages/{}'.format(key.urlsafe()), headers=auth_headers('token_2'))
 
         assert_success(self, response_delete)
         assert_json(self, response_delete)
 
-        response_get = self.app.get('/conversations/{}/messages'.format(conv_key_1.urlsafe()))
+        response_get = self.app.get('/conversations/{}/messages'.format(conv_key_1.urlsafe()), headers=auth_headers('token_2'))
 
         messages = json.loads(response_get.normal_body)
 

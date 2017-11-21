@@ -5,7 +5,7 @@ import json
 
 from setups import setUp, tearDown
 
-from testutils import assert_json, assert_success, assert_error
+from testutils import assert_json, assert_success, assert_error, auth_headers
 
 from google.appengine.ext import ndb
 
@@ -23,7 +23,7 @@ class TestConversations(unittest.TestCase):
         user_key_1 = ndb.Key(User, 1)
         user_key_2 = ndb.Key(User, 2)
 
-        response = self.app.get('/conversations')
+        response = self.app.get('/conversations', headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -65,7 +65,7 @@ class TestConversations(unittest.TestCase):
         user_key_1 = ndb.Key(User, 1)
         user_key_2 = ndb.Key(User, 2)
 
-        response = self.app.get('/users/{}/conversations'.format(user_key_1.urlsafe()))
+        response = self.app.get('/users/{}/conversations'.format(user_key_1.urlsafe()), headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -89,7 +89,7 @@ class TestConversations(unittest.TestCase):
 
         conv_edit = {'users': json.dumps([user_key_1.urlsafe(), user_key_1.urlsafe()]) }
 
-        response = self.app.put('/conversations/{}'.format(key.urlsafe()), conv_edit)
+        response = self.app.put('/conversations/{}'.format(key.urlsafe()), conv_edit, headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -106,7 +106,7 @@ class TestConversations(unittest.TestCase):
 
         conversation = {'users_ids': json.dumps([user_key_1.urlsafe(), user_key_2.urlsafe()])}
 
-        response = self.app.post('/conversations', conversation)
+        response = self.app.post('/conversations', conversation, headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -119,7 +119,7 @@ class TestConversations(unittest.TestCase):
     def test_delete_one(self):
         key = ndb.Key(Conversation, 11)
 
-        response_delete = self.app.delete('/conversations/{}'.format(key.urlsafe()))
+        response_delete = self.app.delete('/conversations/{}'.format(key.urlsafe()), headers=auth_headers('token_1'))
 
         assert_success(self, response_delete)
         assert_json(self, response_delete)
