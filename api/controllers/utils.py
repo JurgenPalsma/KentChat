@@ -1,5 +1,8 @@
+from functools import wraps
+
 # Set the http headers content type to json
 def returns_json(method):
+    @wraps(method)
     def wrapper(self, *args, **kwargs):
         self.response.headers.add('Content-Type', 'application/json; charset=utf-8')
         return method(self, *args, **kwargs)
@@ -9,6 +12,7 @@ def returns_json(method):
 ## Example: /users/:id would also works with /users?id=4
 def fallback_param_to_req(*parameters):
     def decorator(method):
+        @wraps(method)
         def wrapper(self, *args, **kwargs):
             for param in parameters:
                 if param not in kwargs or kwargs[param] is None:
@@ -34,6 +38,7 @@ def treat_empty_string_as_none(*parameters):
             return value
 
     def decorator(method):
+        @wraps(method)
         def wrapper(self, *args, **kwargs):
             kwargs = {arg: new_value(arg, value) for arg, value in kwargs.items()}
             return method(self, *args, **kwargs)
@@ -47,6 +52,7 @@ class IncorrectRequestContent(Exception):
 # Makes sure the request has all the POST parameters required
 def request_post_require(*parameters):
     def decorator(method):
+        @wraps(method)
         def wrapper(self, *args, **kwargs):
             for p in parameters:
                 if self.request.get(p, default_value=None) is None:

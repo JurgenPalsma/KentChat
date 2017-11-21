@@ -8,3 +8,6 @@ def assert_success(self, response):
 
 def assert_error(self, response, error_code=404):
     self.assertEqual(response.status_int, error_code)
+
+def auth_headers(auth_token):
+    return {'authorization': 'Bearer {}'.format(auth_token)}
