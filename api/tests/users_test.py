@@ -5,7 +5,7 @@ import json
 
 from setups import setUp, tearDown
 
-from testutils import assert_json, assert_success, assert_error
+from testutils import assert_json, assert_success, assert_error, auth_headers
 
 from google.appengine.ext import ndb
 
@@ -45,7 +45,7 @@ class TestUsers(unittest.TestCase):
     def test_get_one(self):
         key = ndb.Key(User, 1)
 
-        response = self.app.get('/users/{}'.format(key.urlsafe()))
+        response = self.app.get('/users/{}'.format(key.urlsafe()), headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -61,7 +61,7 @@ class TestUsers(unittest.TestCase):
     def test_put_one(self):
         key = ndb.Key(User, 1)
 
-        response = self.app.put('/users/{}'.format(key.urlsafe()), {'name': 'JOHN CENA'})
+        response = self.app.put('/users/{}'.format(key.urlsafe()), {'name': 'JOHN CENA'}, headers=auth_headers('token_1'))
 
         assert_success(self, response)
         assert_json(self, response)
@@ -88,9 +88,9 @@ class TestUsers(unittest.TestCase):
         self.assertIn('key', user_result)
 
     def test_delete_one(self):
-        key = ndb.Key(User, 1)
+        key = ndb.Key(User, 2)
 
-        response_delete = self.app.delete('/users/{}'.format(key.urlsafe()))
+        response_delete = self.app.delete('/users/{}'.format(key.urlsafe()), headers=auth_headers('token_2'))
 
         assert_success(self, response_delete)
         assert_json(self, response_delete)

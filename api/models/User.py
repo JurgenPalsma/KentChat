@@ -16,3 +16,7 @@ class User(SerializableModel, ndb.Model):
         res.pop('password', None)
         return res
     to_dict = _to_dict
+
+    @staticmethod
+    def get_by_auth_token(auth_token):
+        return User.query(User.token == auth_token).get()
