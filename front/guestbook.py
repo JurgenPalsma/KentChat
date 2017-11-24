@@ -19,10 +19,13 @@ class MainPage(webapp2.RequestHandler):  # Handler for GET '/'
         template_values = {
             'user': "john",
         }
-        template = JINJA_ENVIRONMENT.get_template('index.html')
+        template = JINJA_ENVIRONMENT.get_template('login.html')
         self.response.write(template.render(template_values))
 
+#class Login(webapp2.RequestHandler): 
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
+	('/sign', MainPage),
+	('/xxx', MainPage),
 ], debug=True)
