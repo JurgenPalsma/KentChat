@@ -48,61 +48,77 @@ class MainPage(BaseHandler):
 
     def get(self):
         print("GET /")
+        template_values = {
+            "ph_password": "password",
+            "ph_mail": "example@kent.ac.uk"
+        }
+        template = JINJA_ENVIRONMENT.get_template('./views/login.html')
+        self.response.write(template.render(template_values))
 
-        if self.session.get('user-token'):
-            template_values = {
-            'name': self.session.get('user-name'),
-            'email': self.session.get('user-email'),
-            'token': self.session.get('user-token'),
-            'key': self.session.get('user-key')
-            }
-            self.response.write("hi, you're logged in with " + template_values.__str__())
-        else:
-            self.response.write("You are not logged in")
 
+class ChatPage(BaseHandler):
+
+    def get(self):
+        print("GET /chat")
+        template_values = {}
+        template = JINJA_ENVIRONMENT.get_template('./views/index.html')
+        self.response.write(template.render(template_values))
 
 
 class LoginController(BaseHandler):
 
-    def get(self):
+    def post(self):
         print("GET /login")
         url = API_URL + "/auth"
 
-        if self.request.get('email') and self.request.get('password') \
-                and self.request.get('remember') and self.request.get('login'):
+        if self.request.get('email') and self.request.get('password'):
             data = dict(email=self.request.get('email'), password=self.request.get('password'))
             self.session['user-email'] = self.request.get('email')
 
         else:
-            data = dict(email="joe@kent.ac.uk", password="password")
+            data = dict(email="joe@kent.ac.uk", password="pass")
             self.session['user-name'] = 'joe'
             self.session['user-email'] = 'joe@kent.ac.uk'
 
         response = requests.post(url, data=data, allow_redirects=True)
-        data = json.loads(response.content)
-        self.session['user-token'] = data['token']
-        self.response.write(self.session.get('user-token'))
+
+        if response.status_code == 200:
+            data = json.loads(response.content)
+            self.session['user-token'] = data['token']
+            self.redirect("/chat")
+        else:
+            template_values = {
+                "ph_password": "bad password",
+                "ph_mail": "example@kent.ac.uk"
+            }
+            template = JINJA_ENVIRONMENT.get_template('./views/login.html')
+            self.response.write(template.render(template_values))
 
 
 class RegistrationController(BaseHandler):
 
-    def get(self):
-        print("GET /register")
+    def post(self):
+        print("1.GET /register")
         url = API_URL + "/users"
 
         if self.request.get('email') and self.request.get('password') \
-                and self.request.get('remember') and self.request.get('login') \
                 and self.request.get('username'):
             data = dict(name=self.request.get('username'),
                         email=self.request.get('email'),
                         password=self.request.get('password'))
+            print("SUCCESS")
         else:
             data = dict(name='joe', email='joe@kent.ac.uk', password="pass")
 
         response = requests.post(url, data=data, allow_redirects=True)
-        data = json.loads(response.content)
-        self.session['user-key'] = data['key']
-        self.response.write(self.session.get('user-key'))
+        if response.status_code == 200:
+            data = json.loads(response.content)
+            self.session['user-key'] = data['key']
+            self.response.write(self.session.get('user-key'))
+
+        else:
+            self.response.write(response.status_code)
+
 
 
 config = {}
@@ -113,6 +129,8 @@ config['webapp2_extras.sessions'] = {
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/login', LoginController),
-    ('/register', RegistrationController)
+    ('/register', RegistrationController),
+    ('/chat', ChatPage),
+
 ], config=config,
     debug=True)

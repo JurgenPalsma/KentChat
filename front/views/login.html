@@ -25,20 +25,15 @@
 			    	<center><h3>KentChat Login</h3></center>
 			 	</div>
 			  	<div class="panel-body">
-			    	<form accept-charset="UTF-8" role="form" action="/sign?kentchat={{ user_login }}" method="post">
+			    	<form accept-charset="UTF-8" role="form" action="/login" method="post">
                     <fieldset>
 			    	  	<div class="form-group">
-			    		    <input class="form-control" placeholder="Yourmail@kent.ac.uk" name="{{email}}" type="text">
+			    		    <input class="form-control" placeholder="{{ph_mail}}" name="email" type="text">
 			    		</div>
 			    		<div class="form-group">
-			    			<input class="form-control" placeholder="Password" name="{{password}}" type="password" value="">
+			    			<input class="form-control" placeholder="{{ph_password}}" name="password" type="password" value="">
 			    		</div>
-			    		<div class="checkbox">
-			    	    	<label>
-			    	    		<input name="remember" type="checkbox" name="{{remember}}" value="Remember Me"> Remember Me
-			    	    	</label>
-			    	    </div>
-			    		<input class="btn btn-lg btn-success btn-block" name="{{login}}" type="submit" value="Login">
+						<input class="btn btn-lg btn-success btn-block" name="{{login}}" type="submit" value="Login">
 						&nbsp;
 						<center><b><a href ="#" data-toggle="modal" data-target="#registerModal">Register</a></b></center>
 			    	</fieldset>
@@ -59,18 +54,18 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-	  <form accept-charset="UTF-8" role="form" action="/sign?kentchat={{ user_register }}" method="post">
+	  <form accept-charset="UTF-8" role="form" action="/register" method="post">
       <div class="modal-body">
 			    	
                     <fieldset>
 						<div class="form-group">
-			    		    <input class="form-control" placeholder="User name" name="{{username}}" type="text">
+			    		    <input class="form-control" placeholder="User name" name="username" type="text">
 			    		</div>
 			    	  	<div class="form-group">
-			    		    <input class="form-control" placeholder="Yourmail@kent.ac.uk" name="{{email}}" type="text">
+			    		    <input class="form-control" placeholder="Yourmail@kent.ac.uk" name="email" type="text">
 			    		</div>
 			    		<div class="form-group">
-			    			<input class="form-control" placeholder="Password" name="{{password}}" type="password" value="">
+			    			<input class="form-control" placeholder="Password" name="password" type="password" value="">
 			    		</div>
 
 			    	</fieldset>
