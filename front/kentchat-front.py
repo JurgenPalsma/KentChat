@@ -48,15 +48,12 @@ class MainPage(BaseHandler):
 
     def get(self):
         print("GET /")
-        if self.session['user-token']:
-            self.redirect("/chat")
-        else:
-            template_values = {
-                "ph_password": "password",
-                "ph_mail": "example@kent.ac.uk"
-            }
-            template = JINJA_ENVIRONMENT.get_template('./views/login.html')
-            self.response.write(template.render(template_values))
+        template_values = {
+            "ph_password": "password",
+            "ph_mail": "example@kent.ac.uk"
+        }
+        template = JINJA_ENVIRONMENT.get_template('./views/login.html')
+        self.response.write(template.render(template_values))
 
 
 class ChatPage(BaseHandler):
