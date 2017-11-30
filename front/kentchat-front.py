@@ -5,6 +5,7 @@ import urllib
 import jinja2
 import webapp2
 from webapp2_extras import sessions # for cookies
+import datetime
 
 
 from google.appengine.api import users
@@ -56,13 +57,119 @@ class MainPage(BaseHandler):
         self.response.write(template.render(template_values))
 
 
+
+
 class ChatPage(BaseHandler):
+
+    def set_conv_name(self, conv, users):
+        if len(conv["users"]) > 2:
+            conv["name"] = "multiple users"
+            return conv
+        for u in conv["users"]:
+            if u != self.session['user-key']:
+                other_user_key = u
+
+        for user in users:
+            if other_user_key == user["key"]:
+                conv["name"] = user["name"]
+                return
 
     def get(self):
         print("GET /chat")
-        template_values = {}
+
+        if "user-key" not in self.session or "users" not in self.session:
+            url = API_URL + "/users"
+            response = requests.get(url, allow_redirects=True)
+            data = json.loads(response.content)
+            self.session["users"] = data
+            for user in data:
+                if self.session['user-email'] in user["email"]:
+                    self.session['user-key'] = user["key"]
+
+        conversations = []
+        url = API_URL + "/conversations"
+        response = requests.get(url, allow_redirects=True)
+        data = json.loads(response.content)
+        for conv in data:
+            if self.session["user-key"] in conv["users"]:
+                conversations.append(conv)
+
+        url = API_URL + "/users"
+        response = requests.get(url, allow_redirects=True)
+        users = json.loads(response.content)
+
+        # find name of user that is not you
+        for conv in conversations:
+            conv = self.set_conv_name(conv, users)
+
+        self.session["conversations"]= conversations
+
+
+        template_values = {
+            "conversations": conversations,
+            "users": self.session["users"]
+        }
         template = JINJA_ENVIRONMENT.get_template('./views/index.html')
         self.response.write(template.render(template_values))
+
+
+class AddConvController(BaseHandler):
+
+    def get(self):
+        url = API_URL + "/conversations"
+        data = dict(users_ids=[self.session["user-key"],
+                               self.request.get("other_user_key")])
+        response = requests.post(url, data=data,
+                                 headers={'authorization': "Bearer " + self.session['user-token']},
+                                 allow_redirects=True)
+        print(response.content)
+        self.redirect("/chat")
+
+class ConversationController(BaseHandler):
+
+    def format_time(self, messages):
+        for message in messages:
+            message["post_time"] = datetime.datetime.fromtimestamp(int(message["post_time"])).strftime("%H:%M")
+        return messages
+
+    def get(self):
+
+        url = API_URL + "/conversations/" + self.request.get("conversation_key") + "/messages"
+        response = requests.get(url, headers={'authorization': "Bearer " + self.session['user-token']}, allow_redirects=True)
+        if response.content:
+            print("USER TOKEN::")
+            print(self.session['user-token'])
+            print(response.content)
+            messages = json.loads(response.content)
+        else:
+            messages = []
+
+        messages = self.format_time(messages)
+
+        template_values = {
+            "conversations": self.session["conversations"],
+            "messages": messages,
+            "current_conversation_key": self.request.get("conversation_key"),
+            "users": self.session["users"]
+        }
+        template = JINJA_ENVIRONMENT.get_template('./views/index.html')
+        self.response.write(template.render(template_values))
+
+
+class SendController(BaseHandler):
+
+    def post(self):
+        url = API_URL + "/conversations/" + self.request.get("current_conversation_key") + "/messages"
+        data = dict(content=self.request.get("message_content"))
+        response = requests.post(url, data=data,
+                      headers={'authorization': "Bearer " + self.session['user-token']},
+                      allow_redirects=True)
+        if response.status_code == 200:
+            self.redirect("/conversation?conversation_key=" + self.request.get("current_conversation_key"))
+        else:
+            self.response.write(response.status_code)
+
+
 
 
 class LoginController(BaseHandler):
@@ -121,6 +228,7 @@ class RegistrationController(BaseHandler):
 
 
 
+
 config = {}
 config['webapp2_extras.sessions'] = {
     'secret_key': 'my_super_secret_key',
@@ -131,6 +239,9 @@ app = webapp2.WSGIApplication([
     ('/login', LoginController),
     ('/register', RegistrationController),
     ('/chat', ChatPage),
+    ('/conversation', ConversationController),
+    ('/send_message', SendController),
+    ('/add_conversation', AddConvController),
 
 ], config=config,
     debug=True)
