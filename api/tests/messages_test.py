@@ -62,6 +62,21 @@ class TestMessages(unittest.TestCase):
         self.assertEqual(key, key_obtained)
 
 
+    def test_post_one(self):
+        conv_key = ndb.Key(Conversation, 11)
+        user_key_1 = ndb.Key(User, 1)
+
+        response = self.app.post('/conversations/{}/messages'.format(conv_key.urlsafe()), {'content': 'A new message'}, headers=auth_headers('token_1'))
+
+        assert_success(self, response)
+        assert_json(self, response)
+
+        message = json.loads(response.normal_body)
+
+        self.assertEqual(message['content'], 'A new message')
+        self.assertEqual(message['user'], user_key_1.urlsafe())
+
+
     def test_put_one(self):
         key = ndb.Key(Conversation, 11, Message, 101)
         user_key_1 = ndb.Key(User, 1)
