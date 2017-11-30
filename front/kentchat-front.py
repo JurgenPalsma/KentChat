@@ -19,7 +19,7 @@ import json
 # Use the App Engine Requests adapter. This makes sure that Requests uses
 # URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
-API_URL = "http://localhost:5010"
+API_URL = "http://kentchat-api.appspot.com"#"http://localhost:5010"
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -55,8 +55,6 @@ class MainPage(BaseHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('./views/login.html')
         self.response.write(template.render(template_values))
-
-
 
 
 class ChatPage(BaseHandler):
@@ -103,7 +101,6 @@ class ChatPage(BaseHandler):
             conv = self.set_conv_name(conv, users)
 
         self.session["conversations"]= conversations
-
 
         template_values = {
             "conversations": conversations,
@@ -171,8 +168,6 @@ class SendController(BaseHandler):
             self.response.write(response.status_code)
 
 
-
-
 class LoginController(BaseHandler):
 
     def post(self):
@@ -206,7 +201,7 @@ class LoginController(BaseHandler):
 class RegistrationController(BaseHandler):
 
     def post(self):
-        print("1.GET /register")
+        print("GET /register")
         url = API_URL + "/users"
 
         if self.request.get('email') and self.request.get('password') \
@@ -222,7 +217,7 @@ class RegistrationController(BaseHandler):
         if response.status_code == 200:
             data = json.loads(response.content)
             self.session['user-key'] = data['key']
-            self.response.write(self.session.get('user-key'))
+            self.redirect("/chat")
 
         else:
             self.response.write(response.status_code)
