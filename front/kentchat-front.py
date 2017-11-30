@@ -62,17 +62,17 @@ class MainPage(BaseHandler):
 class ChatPage(BaseHandler):
 
     def set_conv_name(self, conv, users):
+        other_user_key = ""
         if len(conv["users"]) > 2:
             conv["name"] = "multiple users"
             return conv
         for u in conv["users"]:
             if u != self.session['user-key']:
                 other_user_key = u
-
         for user in users:
             if other_user_key == user["key"]:
                 conv["name"] = user["name"]
-                return
+                return conv
 
     def get(self):
         print("GET /chat")
@@ -117,13 +117,14 @@ class AddConvController(BaseHandler):
 
     def get(self):
         url = API_URL + "/conversations"
-        data = dict(users_ids=[self.session["user-key"],
-                               self.request.get("other_user_key")])
+        data = {'users_ids': json.dumps([self.session["user-key"],
+                                         self.request.get("other_user_key")])}
+        print(data)
         response = requests.post(url, data=data,
-                                 headers={'authorization': "Bearer " + self.session['user-token']},
                                  allow_redirects=True)
         print(response.content)
         self.redirect("/chat")
+
 
 class ConversationController(BaseHandler):
 
