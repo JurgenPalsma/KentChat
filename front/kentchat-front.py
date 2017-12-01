@@ -148,15 +148,25 @@ class ConversationController(BaseHandler):
         if response.content:
             messages = json.loads(response.content)
         else:
+
             messages = []
         messages = self.format_time(messages)
+        if "user-key" not in self.session or "users" not in self.session:
+            url = API_URL + "/users"
+            response = requests.get(url, allow_redirects=True)
+            data = json.loads(response.content)
+            self.session["users"] = data
+            for user in data:
+                if self.session['user-email'] in user["email"]:
+                    self.session['user-key'] = user["key"]
+
         self.api_get_conversations()
         template_values = {
             "conversations": self.session["conversations"],
             "messages": messages,
             "current_conversation_key": self.request.get("conversation_key"),
             "users": self.session["users"],
-            "self-key": self.session["user-key"]
+            "self_key": self.session["user-key"]
         }
         template = JINJA_ENVIRONMENT.get_template('./views/index.html')
         self.response.write(template.render(template_values))

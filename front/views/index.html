@@ -13,7 +13,10 @@
 </head>
 <script src="https://use.fontawesome.com/45e03a14ce.js"></script>
 <style>
-
+.scroll{
+ max-height: 200px;
+ overflow-y: scroll;
+}
 </style>
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="navbar-header">
@@ -53,7 +56,7 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Add a contact</h4>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body scroll">
 
                     {% for user in users %}
 
@@ -119,15 +122,31 @@
 		 <ul class="list-unstyled">
 
              {% for message in messages %}
-                <li class="left clearfix">
-                    <span class="chat-img1 pull-left">
+
+                {% if message.user == self_key %}
+                <li class="left clearfix admin_chat">
+                    <span class="chat-img1 pull-right">
                         <i class="fa fa-user fa-2x"> </i>
                     </span>
+                    <div class="chat-body1 clearfix">
+                        <p>{{message.content}}</p>
+						<div class="chat_time pull-left">{{message.post_time}}</div>
+                    </div>
+                </li>
+                {% else %}
+                <li class="right clearfix">
+                    <span class="chat-img pull-left">
+                        <i class="fa fa-user fa-2x"> </i>
+                    </span>
+
                     <div class="chat-body1 clearfix">
                         <p>{{message.content}}</p>
 						<div class="chat_time pull-right">{{message.post_time}}</div>
                     </div>
                 </li>
+                {% endif %}
+
+
              {% endfor %}
 
 				 		 
