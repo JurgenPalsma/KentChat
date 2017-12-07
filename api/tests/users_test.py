@@ -28,8 +28,8 @@ class TestUsers(unittest.TestCase):
 
         users = json.loads(response.normal_body)
 
-        self.assertEqual(len(users), 2)
-        user_1, user_2 = users
+        self.assertEqual(len(users), 3)
+        user_1, user_2, user_3 = users
 
         self.assertEqual(user_1['name'], 'kent user 1')
         self.assertEqual(user_1['email'], 'kentuser1@gmail.com')
@@ -40,6 +40,11 @@ class TestUsers(unittest.TestCase):
         self.assertEqual(user_2['email'], 'kentuser2@gmail.com')
         key_2 = ndb.Key(urlsafe=user_2['key'])
         self.assertEqual(key_2.id(), 2)
+
+        self.assertEqual(user_3['name'], 'kent user 3')
+        self.assertEqual(user_3['email'], 'kentuser3@gmail.com')
+        key_3 = ndb.Key(urlsafe=user_3['key'])
+        self.assertEqual(key_3.id(), 3)
 
 
     def test_get_one(self):
