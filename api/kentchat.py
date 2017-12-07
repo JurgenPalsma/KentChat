@@ -25,7 +25,7 @@ import webapp2
 from webapp2_extras import json, routes
 from models import User, Message, Conversation
 
-from controllers import UsersController, UsersConversationsController, ConversationsController, MessagesController, AuthController
+from controllers import UsersController, UsersConversationsController, ConversationsController, MessagesController, AuthController, NonFriendsController
 
 class Welcome(webapp2.RequestHandler):  # Handler for GET '/'
 
@@ -69,6 +69,8 @@ app = webapp2.WSGIApplication([
     webapp2.Route('/users', UsersController, name='users', methods=['GET', 'POST']),
     webapp2.Route(r'/users/<user_id:[^/]*>', UsersController, name='users', methods=['GET', 'PUT', 'DELETE']),
     webapp2.Route(r'/users/<user_id>/conversations<:/?>', UsersConversationsController, name='users_conversations', methods=['GET']),
+
+    webapp2.Route(r'/users/<user_id>/nonfriends<:/?>', NonFriendsController, name='users_non_friends', methods=['GET']),
 
     webapp2.Route('/conversations', ConversationsController, name='conversations', methods=['GET', 'POST']),
     webapp2.Route(r'/conversations/<conv_id:[^/]*>', ConversationsController, name='conversations', methods=['GET', 'PUT', 'DELETE']),
