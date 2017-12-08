@@ -7,6 +7,8 @@ import webapp2
 from webapp2_extras import sessions # for cookies
 import datetime
 
+from functools import wraps
+
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -49,6 +51,22 @@ class BaseHandler(webapp2.RequestHandler):              # taken from the webapp2
         self.session['user-token'] = data['token']
         return response
 
+
+    # Make sure user is logged in
+    @staticmethod
+    def logged_in(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            if "user-key" in self.session:
+                if not self.session["user-key"] == "":
+                    method(self, *args, **kwargs)
+                else:
+                    self.redirect("/")
+            else:
+                self.redirect("/")
+        return wrapper
+
+
     def api_get_conversations(self):
         conversations = []
         url = API_URL + "/conversations"
@@ -67,6 +85,27 @@ class BaseHandler(webapp2.RequestHandler):              # taken from the webapp2
             conv = self.set_conv_name(conv, users)
         self.session["conversations"] = conversations
         return conversations
+
+    def api_get_nonfriends(self):
+        if "user-key" not in self.session or "users" not in self.session:
+            url = API_URL + "/users"
+            response = requests.get(url, allow_redirects=True)
+            data = json.loads(response.content)
+            self.session["users"] = data
+            for user in data:
+                if self.session['user-email'] in user["email"]:
+                    self.session['user-key'] = user["key"]
+                    time.sleep(0.1)
+            print("HI")
+
+        url = API_URL + "/users/" + self.session['user-key'] + "/nonfriends"
+        response = requests.get(url, allow_redirects=True)
+        if response.status_code != 200:
+            print(response.status_code)
+            print(response.content)
+            return
+        data = json.loads(response.content)
+        self.session["nonfriends"] = data
 
     def set_conv_name(self, conv, users):
         other_user_key = ""
@@ -102,21 +141,15 @@ class MainPage(BaseHandler):
 
 class ChatPage(BaseHandler):
 
+    @BaseHandler.logged_in
     def get(self):
         print("GET /chat")
-
-        if "user-key" not in self.session or "users" not in self.session:
-            url = API_URL + "/users"
-            response = requests.get(url, allow_redirects=True)
-            data = json.loads(response.content)
-            self.session["users"] = data
-            for user in data:
-                if self.session['user-email'] in user["email"]:
-                    self.session['user-key'] = user["key"]
+        self.api_get_nonfriends()
         self.api_get_conversations()
         template_values = {
             "conversations": self.session["conversations"],
-            "users": self.session["users"]
+            "users": self.session["users"],
+            "nonfriends": self.session["nonfriends"]
         }
         template = JINJA_ENVIRONMENT.get_template('./views/index.html')
         self.response.write(template.render(template_values))
@@ -131,6 +164,7 @@ class AddConvController(BaseHandler):
         response = requests.post(url, data=data,
                                  allow_redirects=True)
         self.api_get_conversations()
+        time.sleep(0.5)
         self.redirect("/chat")
 
 
@@ -145,11 +179,10 @@ class ConversationController(BaseHandler):
 
         url = API_URL + "/conversations/" + self.request.get("conversation_key") + "/messages"
         response = requests.get(url, headers={'authorization': "Bearer " + self.session['user-token']}, allow_redirects=True)
-        if response.content:
+        if response.status_code == 200:
             messages = json.loads(response.content)
         else:
-
-            messages = []
+            return self.response.write(response.content)
         messages = self.format_time(messages)
         if "user-key" not in self.session or "users" not in self.session:
             url = API_URL + "/users"
@@ -159,14 +192,15 @@ class ConversationController(BaseHandler):
             for user in data:
                 if self.session['user-email'] in user["email"]:
                     self.session['user-key'] = user["key"]
-
+        self.api_get_nonfriends()
         self.api_get_conversations()
         template_values = {
             "conversations": self.session["conversations"],
             "messages": messages,
             "current_conversation_key": self.request.get("conversation_key"),
             "users": self.session["users"],
-            "self_key": self.session["user-key"]
+            "self_key": self.session["user-key"],
+            "nonfriends": self.session["nonfriends"]
         }
         template = JINJA_ENVIRONMENT.get_template('./views/index.html')
         self.response.write(template.render(template_values))
@@ -183,7 +217,7 @@ class SendController(BaseHandler):
         if response.status_code == 200:
             self.redirect("/conversation?conversation_key=" + self.request.get("current_conversation_key"))
         else:
-            self.response.write(response.status_code)
+            self.redirect("/chat")
 
 
 class LoginController(BaseHandler):
@@ -195,6 +229,15 @@ class LoginController(BaseHandler):
         if self.request.get('email') and self.request.get('password'):
             auth_response = self.api_auth(self.request.get('email'), self.request.get('password'))
             if auth_response.status_code == 200:
+                if "user-key" not in self.session or "users" not in self.session:
+                    url = API_URL + "/users"
+                    response = requests.get(url, allow_redirects=True)
+                    data = json.loads(response.content)
+                    self.session["users"] = data
+                    for user in data:
+                        if self.session['user-email'] in user["email"]:
+                            self.session['user-key'] = user["key"]
+
                 self.redirect("/chat")
                 return
         template_values = {
@@ -203,6 +246,13 @@ class LoginController(BaseHandler):
         }
         template = JINJA_ENVIRONMENT.get_template('./views/login.html')
         self.response.write(template.render(template_values))
+
+class LogoutController(BaseHandler):
+
+    def get(self):
+        print("GET /logout")
+        self.session["user-key"] = ""
+        self.redirect("/")
 
 
 class RegistrationController(BaseHandler):
@@ -227,7 +277,6 @@ class RegistrationController(BaseHandler):
                 print("Try to login after registration)")
                 self.session['user-key'] = data['key']
 
-
                 auth_response = self.api_auth(email, password)
 
                 if auth_response.status_code == 200:
@@ -235,7 +284,8 @@ class RegistrationController(BaseHandler):
                     return
                 else:
                     self.response.write("auth post registration failed")
-        self.response.write(response.status_code)
+                    return
+        self.redirect("/?redirect=registration_failed")
 
 
 
@@ -248,6 +298,7 @@ config['webapp2_extras.sessions'] = {
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/login', LoginController),
+    ('/logout', LogoutController),
     ('/register', RegistrationController),
     ('/chat', ChatPage),
     ('/conversation', ConversationController),

@@ -29,10 +29,11 @@
   </div>
   <div class="navbar-collapse collapse">
     <ul class="nav navbar-nav">
-      <li class="active"><a href="#">Home</a></li>
-      <li><a href="#about">About</a></li>  
+      <li class="active"><a href="/chat">Home</a></li>
+      <li><a href="/logout">Logout</a></li>
     </ul>
   </div>
+
 </nav>
   <body style="padding-top:60px">
 <div class="main_section">
@@ -58,7 +59,7 @@
                 </div>
                 <div class="modal-body scroll">
 
-                    {% for user in users %}
+                    {% for user in nonfriends %}
 
                     <a style="display:block" href="/add_conversation?other_user_key={{user.key}}">
 
@@ -89,18 +90,27 @@
                <ul class="list-unstyled">
 
                    {% for conv in conversations %}
+                   {% if current_conversation_key == conv.key %}
                    <a style="display:block" href="/conversation?conversation_key={{conv.key}}">
-                  <li class="left clearfix" type="submit">
-                     <div class="chat-body clearfix">
+                  <li style="background:lightblue" class="left clearfix" type="submit">
+                     <div  class="chat-body clearfix">
                         <div class="header_sec">
-
-                           <strong class="primary-font">{{conv.name}}</strong> <strong class="pull-right">
-                           9:40</strong>
+                           <strong class="primary-font">{{conv.name}}</strong>
                         </div>
                      </div>
                   </li>
                    </a>
-
+                   {% else %}
+                    <a style="display:block" href="/conversation?conversation_key={{conv.key}}">
+                  <li class="left clearfix" type="submit">
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">{{conv.name}}</strong>
+                        </div>
+                     </div>
+                  </li>
+                   </a>
+                   {% endif %}
                    {% endfor %}
 
                </ul>
