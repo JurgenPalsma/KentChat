@@ -6,7 +6,6 @@ from google.appengine.ext import ndb
 import webapp2
 from webapp2_extras import json, security
 
-from random import choice
 from functools import wraps
 
 from models import User
@@ -40,12 +39,7 @@ def require_auth_token(method):
 def generate_password_hash(raw_password):
     return security.generate_password_hash(raw_password, length=12)
 
-def generate_token(size=16):
-    alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    return reduce(lambda a, b: str(a) + str(b), [choice(alphabet) for _ in range(size)])
-
-
-class AuthController(webapp2.RequestHandler):
+class LoginController(webapp2.RequestHandler):
 
     @request_post_require('email', 'password')
     @returns_json
@@ -55,6 +49,23 @@ class AuthController(webapp2.RequestHandler):
 
         users = [user for user in User.query(User.email == email) if security.check_password_hash(password, user.password)]
         if len(users) is 0:
-            auth_error(self, 'Email of Password not found/matching')
+            auth_error(self, 'Email or Password not found/matching')
 
-        self.response.write(json.encode({'token': users[0].token, 'key': users[0].key.urlsafe()}))
+        user = users[0]
+
+        token = user.add_new_token()
+        self.response.write(json.encode({'token': token, 'key': users[0].key.urlsafe()}))
+
+class LogoutController(webapp2.RequestHandler):
+
+    @require_auth_token
+    @returns_json
+    def post(self, auth_token=None):
+
+        user = User.get_by_auth_token(auth_token)
+        success = user.remove_token(auth_token)
+
+        if success:
+            self.response.write(json.encode({'message': 'Have a good day'}))
+        else:
+            self.abort(403, 'Could not logout')

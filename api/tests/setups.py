@@ -19,9 +19,9 @@ from kentchat import app
 
 def add_users():
     User.allocate_ids(max=100)
-    user_1 = User(email='kentuser1@gmail.com', name='kent user 1', password=generate_password_hash('password_1'), token='token_1' ,id=1)
-    user_2 = User(email='kentuser2@gmail.com', name='kent user 2', password=generate_password_hash('password_2'), token='token_2' ,id=2)
-    user_3 = User(email='kentuser3@gmail.com', name='kent user 3', password=generate_password_hash('password_3'), token='token_3' ,id=3)
+    user_1 = User(email='kentuser1@gmail.com', name='kent user 1', password=generate_password_hash('password_1'), tokens=['token_1'] ,id=1)
+    user_2 = User(email='kentuser2@gmail.com', name='kent user 2', password=generate_password_hash('password_2'), tokens=['token_2'] ,id=2)
+    user_3 = User(email='kentuser3@gmail.com', name='kent user 3', password=generate_password_hash('password_3'), tokens=['token_3'] ,id=3)
     user_1.put()
     user_2.put()
     user_3.put()

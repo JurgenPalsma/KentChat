@@ -25,50 +25,15 @@ import webapp2
 from webapp2_extras import json, routes
 from models import User, Message, Conversation
 
-from controllers import UsersController, UsersConversationsController, ConversationsController, MessagesController, AuthController, NonFriendsController
-
-class Welcome(webapp2.RequestHandler):  # Handler for GET '/'
-
-    def get(self):
-        self.response.content_type = 'application/json'
-        obj = {
-        'success': 'true',
-        'message': 'Welcome to KentChat API!'
-        }
-        self.response.write(json.encode(obj))
-
-
-class Registration(webapp2.RequestHandler):  # Registration handler
-
-    def get(self):
-        self.response.content_type = 'application/json'
-        obj = {
-        'success': 'false',
-        'message': 'Not implemented yet'
-        }
-        self.response.write(json.encode(obj))
-
-
-class Authentication(webapp2.RequestHandler):  # Auth handler
-
-    def get(self):
-        self.response.content_type = 'application/json'
-        obj = {
-        'success': 'false',
-        'message': 'Not implemented yet'
-        }
-        self.response.write(json.encode(obj))
-
-
+from controllers import UsersController, UsersConversationsController, ConversationsController, MessagesController, LoginController, LogoutController, NonFriendsController, MeController
 
 # [START app] - Declare Routes with url and handler classes
 app = webapp2.WSGIApplication([
-    webapp2.Route('/', Welcome),
-    webapp2.Route('/register', Registration),
-    webapp2.Route('/authenticate', Authentication),
     webapp2.Route('/users', UsersController, name='users', methods=['GET', 'POST']),
     webapp2.Route(r'/users/<user_id:[^/]*>', UsersController, name='users', methods=['GET', 'PUT', 'DELETE']),
     webapp2.Route(r'/users/<user_id>/conversations<:/?>', UsersConversationsController, name='users_conversations', methods=['GET']),
+
+    webapp2.Route('/me', MeController, name='me', methods=['GET']),
 
     webapp2.Route(r'/users/<user_id>/nonfriends<:/?>', NonFriendsController, name='users_non_friends', methods=['GET']),
 
@@ -79,6 +44,7 @@ app = webapp2.WSGIApplication([
     webapp2.Route(r'/conversations/<conv_id>/messages/', MessagesController, name='convesrsations_messages', methods=['GET', 'POST']),
     webapp2.Route(r'/messages/<msg_id:[^/]*>', MessagesController, name='messages', methods=['GET', 'PUT', 'DELETE']),
 
-    webapp2.Route(r'/auth', AuthController, name='auth', methods=['POST']),
+    webapp2.Route(r'/auth', LoginController, name='auth', methods=['POST']),
+    webapp2.Route(r'/logout', LogoutController, name='logout', methods=['POST']),
 ], debug=True)
 # [END app]

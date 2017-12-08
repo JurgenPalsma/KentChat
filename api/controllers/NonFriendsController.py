@@ -9,7 +9,7 @@ from webapp2_extras import json
 from models import User, Conversation
 from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
 
-from AuthController import generate_token, generate_password_hash, require_auth_token, auth_error
+from AuthController import auth_error
 
 def user_not_found(self, user_id=None, *args, **kwargs):
     if user_id is not None:
@@ -48,7 +48,7 @@ class NonFriendsController(webapp2.RequestHandler):
         else: # Return one user
             user = get_one_user(self, user_id)
             conversations = Conversation.query().filter(Conversation.users.IN([user.key]))
-            friends = reduce(lambda a, b: a + b, [conv.users for conv in conversations])
+            friends = reduce(lambda a, b: a + b, [conv.users for conv in conversations], [])
 
             all_users = [user.key for user in User.query()]
 

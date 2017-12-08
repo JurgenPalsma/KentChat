@@ -106,3 +106,16 @@ class TestUsers(unittest.TestCase):
 
         for user in users:
             self.assertNotEqual(user['key'], key.urlsafe())
+
+    def test_get_me(self):
+        key = ndb.Key(User, 1)
+
+        response = self.app.get('/me', headers=auth_headers('token_1'))
+
+        assert_success(self, response)
+        assert_json(self, response)
+
+        me = json.loads(response.normal_body)
+        key_obtained = ndb.Key(urlsafe=me['key'])
+
+        self.assertEqual(key, key_obtained)

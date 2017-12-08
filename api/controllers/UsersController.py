@@ -9,7 +9,7 @@ from webapp2_extras import json
 from models import User
 from utils import returns_json, fallback_param_to_req, get_params_from_request, treat_empty_string_as_none, request_post_require
 
-from AuthController import generate_token, generate_password_hash, require_auth_token, auth_error
+from AuthController import generate_password_hash, require_auth_token, auth_error
 
 def user_not_found(self, user_id=None, *args, **kwargs):
     if user_id is not None:
@@ -21,20 +21,19 @@ def user_not_found(self, user_id=None, *args, **kwargs):
 # If the auth token is provided, checks if the user corresponds to the auth_token
 def get_one_user(self, user_id, auth_token=None):
     print('getting user {}'.format(user_id))
-    try:
-        user = ndb.Key(urlsafe=user_id).get()
-        if user is None:
-            user_not_found(self, user_id=user_id)
-        else:
-            if auth_token is not None: # If auth token has been given, check that it is the correct user. Else, we don't care
-                if user.token != auth_token:
-                    auth_error(self)
-                else:
-                     return user
-            else:
-                return user
-    except Exception as e:
+    user = ndb.Key(urlsafe=user_id).get()
+    if user is None:
         user_not_found(self, user_id=user_id)
+    else:
+        if auth_token is not None: # If auth token has been given, check that it is the correct user. Else, we don't care
+            user_by_token = User.get_by_auth_token(auth_token)
+            if user is not user_by_token:
+                auth_error(self)
+            else:
+                 return user
+        else:
+            return user
+    user_not_found(self, user_id=user_id)
 
 class UsersController(webapp2.RequestHandler):
 
@@ -58,7 +57,6 @@ class UsersController(webapp2.RequestHandler):
         user.email = self.request.get('email')
         user.name = self.request.get('name')
         user.password = generate_password_hash(self.request.get('password'))
-        user.token = generate_token()
 
         print('POST on /users: {}'.format(user))
 
@@ -99,3 +97,10 @@ class UsersController(webapp2.RequestHandler):
         user.key.delete()
         res = {'message': 'User successfully deleted.'}
         self.response.write(json.encode(res))
+
+
+class MeController(webapp2.RequestHandler):
+    @require_auth_token
+    @returns_json
+    def get(self, auth_token=None):
+        self.response.write(json.encode(User.get_by_auth_token(auth_token).to_dict()))
