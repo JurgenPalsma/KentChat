@@ -54,6 +54,7 @@ class LoginController(webapp2.RequestHandler):
         user = users[0]
 
         token = user.add_new_token()
+        user.put()
         self.response.write(json.encode({'token': token, 'key': users[0].key.urlsafe()}))
 
 class LogoutController(webapp2.RequestHandler):

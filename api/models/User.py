@@ -15,6 +15,11 @@ class User(SerializableModel, ndb.Model):
     password = ndb.StringProperty(required=True)
     tokens = ndb.StringProperty(repeated=True)
 
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        if self.tokens is None:
+            self.tokens = []
+
     def _to_dict(self, *args, **kwargs):
         res = super(User, self)._to_dict(*args, **kwargs)
         # Secret stuff
