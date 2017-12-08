@@ -119,6 +119,10 @@ class BaseHandler(webapp2.RequestHandler):              # taken from the webapp2
             if other_user_key == user["key"]:
                 conv["name"] = user["name"]
                 return conv
+            if other_user_key == "":
+                conv["name"] = "Yourself"
+                return conv
+
 
 
     @webapp2.cached_property
