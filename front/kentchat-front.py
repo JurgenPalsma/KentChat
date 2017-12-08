@@ -46,10 +46,18 @@ class BaseHandler(webapp2.RequestHandler):              # taken from the webapp2
         data = dict(email=email, password=password)
         self.session['user-email'] = self.request.get('email')
         response = requests.post(url, data=data, allow_redirects=True)
-        self.response.write(response.content)
-        data = json.loads(response.content)
-        self.session['user-token'] = data['token']
-        return response
+        if (response.status_code == 200):
+            data = json.loads(response.content)
+            self.session['user-token'] = data['token']
+            return response
+        else:
+            template_values = {
+                "ph_password": "bad password",
+                "ph_mail": "example@kent.ac.uk"
+            }
+            template = JINJA_ENVIRONMENT.get_template('./views/login.html')
+            self.response.write(template.render(template_values))
+            return
 
 
     # Make sure user is logged in
@@ -122,7 +130,6 @@ class BaseHandler(webapp2.RequestHandler):              # taken from the webapp2
             if other_user_key == "":
                 conv["name"] = "Yourself"
                 return conv
-
 
 
     @webapp2.cached_property
@@ -232,7 +239,7 @@ class LoginController(BaseHandler):
 
         if self.request.get('email') and self.request.get('password'):
             auth_response = self.api_auth(self.request.get('email'), self.request.get('password'))
-            if auth_response.status_code == 200:
+            if auth_response:
                 if "user-key" not in self.session or "users" not in self.session:
                     url = API_URL + "/users"
                     response = requests.get(url, allow_redirects=True)
@@ -241,16 +248,10 @@ class LoginController(BaseHandler):
                     for user in data:
                         if self.session['user-email'] in user["email"]:
                             self.session['user-key'] = user["key"]
-
                 self.redirect("/chat")
                 return
-        template_values = {
-            "ph_password": "bad password",
-            "ph_mail": "example@kent.ac.uk"
-        }
-        template = JINJA_ENVIRONMENT.get_template('./views/login.html')
-        self.response.write(template.render(template_values))
 
+            
 class LogoutController(BaseHandler):
 
     def get(self):
