@@ -17,10 +17,47 @@
  max-height: 200px;
  overflow-y: scroll;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+#myInput {
+  background-image: url('../bootstrap/css/searchicon.png');
+  background-position: 10px 12px;
+  background-repeat: no-repeat;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+
+#myUL {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#myUL li a {
+  border: 1px solid #ddd;
+  margin-top: -1px; /* Prevent double borders */
+  background-color: #f6f6f6;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 18px;
+  color: black;
+  display: block
+}
+
+#myUL li a:hover:not(.header) {
+  background-color: #eee;
+}
 </style>
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="navbar-header">
-    <a class="navbar-brand" href="#">KentChat</a>
+  
+    <img src="../bootstrap/img/logo.png" height="50px" width="200px"></img>
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
@@ -41,75 +78,61 @@
       <div class="chat_container">
          <div class="col-sm-3 chat_sidebar">
     	 <div class="row">
-
-            <div>
-            Conversations
-                <!-- Trigger the modal with a button -->
-            <button type="button" class="fa fa-plus pull-right" data-toggle="modal" data-target="#myModal">Add Contact</button>
-
-        <!-- Modal -->
-        <div id="myModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Add a contact</h4>
-                </div>
-                <div class="modal-body scroll">
-
-                    {% for user in nonfriends %}
-
-                    <a style="display:block" href="/add_conversation?other_user_key={{user.key}}">
-
-                           <li class="left clearfix" type="submit">
-                              <div class="chat-body clearfix">
-                            <div class="header_sec">
-                                <span class="chat-img1 pull-left">
-                                 <i class="fa fa-user fa-2x"> </i>
-                                </span>
-                            <strong class="primary-font">{{user.name}}</strong>
-                            </div>
-                            </div>
-                          </li>
-                    </a>
-                   {% endfor %}
-
-                </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+            <div id="custom-search-input">
+               <div class="input-group col-md-12">
+                  <input type="text" class="  search-query form-control" placeholder="Search contacts..." id="searchContacts" onkeyup="contactSearch()" />
+                  <button class="btn btn-danger" type="button">
+                  <span class=" glyphicon glyphicon-search"></span>
+                  </button>
+               </div>
             </div>
+            <div class="dropdown all_conversation">
+               <button class="dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               <i class="fa fa-weixin" aria-hidden="true"></i>
+               My Chats
+               <span class="caret pull-right"></span>
+               </button>
+               <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                  <li><a href="#" data-toggle="modal" data-target="#myModal">Add Contact</a></li>
+                  <li><a href="#">Log Out</a></li>
+               </ul>
             </div>
-        </div>
 
-            </div>
+<!--             <div>
+            <b>Conversations</b>
+     
+            <button type="button" class="btn btn-success btn-xs pull-right" data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"></i>Add Contact</button>
+            </div> -->
 
              <div class="member_list">
-               <ul class="list-unstyled">
+               <ul class="list-unstyled" id="convList">
+
 
                    {% for conv in conversations %}
                    {% if current_conversation_key == conv.key %}
-                   <a style="display:block" href="/conversation?conversation_key={{conv.key}}">
-                  <li style="background:lightblue" class="left clearfix" type="submit">
-                     <div  class="chat-body clearfix">
-                        <div class="header_sec">
-                           <strong class="primary-font">{{conv.name}}</strong>
-                        </div>
-                     </div>
-                  </li>
-                   </a>
-                   {% else %}
-                    <a style="display:block" href="/conversation?conversation_key={{conv.key}}">
-                  <li class="left clearfix" type="submit">
+                  <li class="left clearfix" ><a href="/conversation?conversation_key={{conv.key}}">
+                     <span class="chat-img pull-left">
+                        <i class="fa fa-user fa-2x"></i>
+                     </span>
                      <div class="chat-body clearfix">
                         <div class="header_sec">
-                           <strong class="primary-font">{{conv.name}}</strong>
+                           <strong class="primary-font">{{conv.name}}</strong> 
                         </div>
                      </div>
+					 </a>
                   </li>
-                   </a>
+                   {% else %}
+                  <li class="left clearfix" ><a href="/conversation?conversation_key={{conv.key}}">
+                     <span class="chat-img pull-left">
+                        <i class="fa fa-user fa-2x"></i>
+                     </span>
+                     <div class="chat-body clearfix">
+                        <div class="header_sec">
+                           <strong class="primary-font">{{conv.name}}</strong> 
+                        </div>
+                     </div>
+					 </a>
+                  </li>
                    {% endif %}
                    {% endfor %}
 
@@ -177,14 +200,68 @@
       </div>
    </div>
 </div>
+
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add a contact</h4>
+                </div>
+                <div class="modal-body scroll">
+                    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for names.." title="Type in a name">
+
+                    {% for user in nonfriends %}
+                    <ul id="myUL">
+					<li><a href="/add_conversation?other_user_key={{user.key}}">{{user.name}}</a></li>
+                     
+                   {% endfor %}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
+        </div>
   </body>
 <script>
-$('#monitor').html($(window).width());
+function myFunction() {
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("myUL");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
 
-$(window).resize(function() {
-    var viewportWidth = $(window).width();
-    $('#monitor').html(viewportWidth);
-});
+        }
+    }
+}
+//Filter user lists
+function contactSearch(){
+    var input, filter, ul, li, a, i;
+    input = document.getElementById("searchContacts");
+    filter = input.value.toUpperCase();
+    ul = document.getElementById("convList");
+    li = ul.getElementsByTagName("li");
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("a")[0];
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+        } else {
+            li[i].style.display = "none";
+
+        }
+    }
+}
 </script>
 </html>
 {% endautoescape %}
