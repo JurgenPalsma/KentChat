@@ -10,6 +10,15 @@
 	    <link href="bootstrap/css/style.css" rel="stylesheet" id="bootstrap-css">
 		<script src="bootstrap/js/jquery-1.10.2.min.js"></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
+
+    <script src="emoji/js/jQueryEmoji.js"></script>
+    <!-- <script src="jquery/jquery.min.js"></script> -->
+
+    <script>
+    $(document).ready(function(){
+      $('p').Emoji();
+    })
+    </script>
 </head>
 <script src="https://use.fontawesome.com/45e03a14ce.js"></script>
 <style>
@@ -56,7 +65,7 @@
 </style>
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="navbar-header">
-  
+
     <img src="../bootstrap/img/logo.png" height="50px" width="200px"></img>
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
       <span class="icon-bar"></span>
@@ -100,7 +109,7 @@
 
 <!--             <div>
             <b>Conversations</b>
-     
+
             <button type="button" class="btn btn-success btn-xs pull-right" data-toggle="modal" data-target="#myModal"><i class="fa fa-plus"></i>Add Contact</button>
             </div> -->
 
@@ -116,7 +125,7 @@
                      </span>
                      <div class="chat-body clearfix">
                         <div class="header_sec">
-                           <strong class="primary-font">{{conv.name}}</strong> 
+                           <strong class="primary-font">{{conv.name}}</strong>
                         </div>
                      </div>
 					 </a>
@@ -128,7 +137,7 @@
                      </span>
                      <div class="chat-body clearfix">
                         <div class="header_sec">
-                           <strong class="primary-font">{{conv.name}}</strong> 
+                           <strong class="primary-font">{{conv.name}}</strong>
                         </div>
                      </div>
 					 </a>
@@ -141,15 +150,15 @@
             </div>
          </div>
          <!--chat_sidebar-->
-		 
-		 
+
+
          <div class="col-sm-9 message_section">
 		 <div class="row">
 		 <div class="new_message_head">
 		 <div class="pull-left"></div><div class="pull-right"><div class="dropdown">
          </div></div>
 		 </div><!--new_message_head-->
-		 
+
 		 <div class="chat_area">
 		 <ul class="list-unstyled">
 
@@ -161,7 +170,7 @@
                         <i class="fa fa-user fa-2x"> </i>
                     </span>
                     <div class="chat-body1 clearfix">
-                        <p style="background: lightblue;">{{message.content}}</p>
+                        <p>{{message.content}}</p>
 						<div class="chat_time pull-left">{{message.post_time}}</div>
                     </div>
                 </li>
@@ -181,7 +190,7 @@
 
              {% endfor %}
 
-				 		 
+
 		 </ul>
 		 </div><!--chat_area-->
 
@@ -217,7 +226,7 @@
                     {% for user in nonfriends %}
                     <ul id="myUL">
 					<li><a href="/add_conversation?other_user_key={{user.key}}">{{user.name}}</a></li>
-                     
+
                    {% endfor %}
                     </ul>
                 </div>

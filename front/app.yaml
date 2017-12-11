@@ -11,6 +11,12 @@ handlers:
 - url: /bootstrap
   static_dir: bootstrap
 
+- url: /jquery
+  static_dir: bower_components/jquery/dist
+
+- url: /emoji
+  static_dir: bower_components/jqueryemoji
+
 - url: /.*
   script: kentchat-front.app
 # [END handlers]
