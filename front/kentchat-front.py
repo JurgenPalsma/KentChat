@@ -21,7 +21,7 @@ import json
 # Use the App Engine Requests adapter. This makes sure that Requests uses
 # URLFetch.
 requests_toolbelt.adapters.appengine.monkeypatch()
-API_URL = "http://localhost:5010"
+API_URL = "http://kentchat-api.appspot.com"
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
