@@ -240,7 +240,7 @@ class LoginController(BaseHandler):
         if self.request.get('email') and self.request.get('password'):
             auth_response = self.api_auth(self.request.get('email'), self.request.get('password'))
             if auth_response:
-                if "user-key" not in self.session or "users" not in self.session:
+                if "user-key" not in self.session or "users" not in self.session :
                     url = API_URL + "/users"
                     response = requests.get(url, allow_redirects=True)
                     data = json.loads(response.content)
@@ -256,7 +256,7 @@ class LogoutController(BaseHandler):
 
     def get(self):
         print("GET /logout")
-        self.session["user-key"] = ""
+        del self.session["user-key"]
         self.redirect("/")
 
 
